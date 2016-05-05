@@ -1,0 +1,17 @@
+{
+    "name"         : "node-red-contrib-watsonVR",
+    "version"      : "0.0.1",
+    "description"  : "A node for node-red to access watson visual recognition service",
+    "dependencies": {
+	"watson-developer-cloud": "1.4.x",
+	"temp": "*",
+	"file-type": "*",
+	"request": "*"
+    },
+    "keywords": [ "node-red" ],
+    "node-red"     : {
+        "nodes": {
+            "watsonVR": "watsonVR/watsonVR.js"
+        }
+    }
+}

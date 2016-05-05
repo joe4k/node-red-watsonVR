@@ -1,0 +1,122 @@
+// code from genitof to implement Watson visual recognition service
+// in Node-RED. 
+<script type="text/x-red" data-template-name="watsonVR">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-globe"></i> Service</label>
+        <select id="node-input-service">
+            <option value="" disabled></option>
+            <option value="_ext_">External service</option>
+        </select>
+    </div>
+	<div id="external_visual_details">
+	    <div class="form-row">
+	        <label for="node-input-username"><i class="fa fa-user"></i> Username</label>
+	        <input type="text" id="node-input-username">
+	    </div>
+	    <div class="form-row">
+	        <label for="node-input-password"><i class="fa fa-lock"></i> Password</label>
+	        <input type="text" id="node-input-password">
+	    </div>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="watsonVR">
+    <p>The Visual Recognition service analyses images to understand their contents.</p>
+    <p>The image to be analysed should be passed in on <code>msg.payload</code>.</p>
+    <p>Supported <code>msg.payload</code> types:</b>.</p>
+    <ul>
+        <li><b>String</b> URL to image</li>
+        <li><b>Buffer</b> Raw Image Bytes</li>
+    </ul>
+    <p>The identified images labels will be returned on <code>msg.labels</code>.</p>
+    <p>For more information about the Visual Recognition service, read the <a href="https://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/visual-recognition.html">documentation</a>.</p>
+</script>
+
+<script type="text/javascript">
+    (function() {
+        RED.nodes.registerType('watsonVR', {
+            category: 'genaro',
+            defaults: {
+                name: {value: ""},
+                username: {value: ""},
+                password: {value: ""},
+                service: {value: ""}
+            },
+	        color: '#FFFF80',
+            inputs: 1,
+            outputs: 1,
+            icon: "watsonVR.png",
+            paletteLabel: "visual recognition",
+            label: function() {
+                return this.name || "visual recognition";
+            },
+            labelStyle: function() {
+                return this.name ? "node_label_italic" : "";
+            },
+            oneditprepare: function() {
+		        var node = this;
+
+		        $.getJSON('watson-visual-recognition/vcap/',function(data) {
+		        	
+		        	node.visuals = data;
+		        	
+		            var last = $('#node-input-service').children().last();
+		            var opts = [];
+		
+		            for (var i=0; i < data.length; i++) {
+		            	
+		                var selected = node.service === data[i].name;
+		                opts.push(
+		                    '<option value="' + data[i].name + '"' + (selected ? " selected":"") + '>' +
+		                        data[i].name +
+		                    '</option>'
+		                );
+		            }
+		
+		            if (opts.length === 0) {
+		                node.service = "_ext_";
+		                $('#node-input-service').find("option").filter(function() {
+		                    return $(this).val() == node.service;
+		                }).attr('selected', true);
+		            } else {
+		                last.before(opts.join(""));
+		            }
+		
+					if (node.service === '_ext_') {
+					} else {
+						for (var i2=0;i2<node.visuals.length;i2++) {
+							var ws = node.visuals[i2];
+							if (ws.name === node.service) {
+						        $("#node-input-username").val(ws.username);
+						        $("#node-input-password").val(ws.password);
+							}
+						}
+					}
+					$("#external_visual_details").toggle(node.service === '_ext_');
+				});
+	
+				$("#node-input-service").on("change",function() {
+					$("#node-input-service").val(this.value);
+					if (this.value === '_ext_') {
+					} else {
+						if(node.visuals) {
+							for (var i=0;i<node.visuals.length;i++) {
+								var ws = node.visuals[i];
+								if (ws.name === this.value) {
+							        $("#node-input-username").val(ws.username);
+							        $("#node-input-password").val(ws.password);
+								}
+							}
+						}
+					}
+					$("#external_visual_details").toggle(this.value === '_ext_');
+				});
+            }
+        });
+    })();
+</script>
+
