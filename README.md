@@ -22,7 +22,7 @@ To run the code locally (DIR is assumed your working directory):
 6- Once node-red starts, review the console for any error messages. If no errors, point your bowrser to http://locahost:1880 and your node-red flow editor pops up in thr browser.
    Note the newly added node (visual-recognition) in your flow editor.
 
-7- Import the flow (vrApp_flow.json) into your flow editor.
+7- Import the [flow] (vrApp_flow.json) into your flow editor.
 
 8- Edit the vrTest node to add your visual recognition credentials.
 
